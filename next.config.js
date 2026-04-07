@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@react-pdf/renderer'],
-  },
+  serverExternalPackages: [
+    "@sparticuz/chromium-min", 
+    "puppeteer-core",
+    "@react-pdf/renderer"
+  ],
 }
 
 export default nextConfig;
