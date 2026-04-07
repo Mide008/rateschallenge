@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queryOne } from '@/lib/db'
-import chromium from '@sparticuz/chromium-min'
+import chromium from '@sparticuz/chromium'
 import puppeteer from 'puppeteer-core'
 
 export const runtime = 'nodejs'
@@ -218,7 +218,7 @@ export async function GET(req: NextRequest) {
     <tbody>
       ${comparablesRows}
     </tbody>
-  </table>
+  追赶
   
   <div class="footer">
     <p><strong>Data source:</strong> Valuation Office Agency 2023 Compiled Rating List</p>
@@ -230,49 +230,38 @@ export async function GET(req: NextRequest) {
 </body>
 </html>`
 
-    // Launch puppeteer with @sparticuz/chromium for Vercel
-    let browser
-    try {
-      const executablePath = await chromium.executablePath()
-      
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: executablePath,
-        headless: chromium.headless,
-      })
-      
-      const page = await browser.newPage()
-      await page.setContent(html, { waitUntil: 'networkidle0' })
-      
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '2cm',
-          bottom: '2cm',
-          left: '1.5cm',
-          right: '1.5cm'
-        }
-      })
-      
-      await browser.close()
-      
-      // Return as PDF file
-      return new NextResponse(pdfBuffer, {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="rates-challenge-${analysis.postcode || analysis.id}.pdf"`,
-          'Content-Length': String(pdfBuffer.length),
-          'Cache-Control': 'no-store',
-        },
-      })
-      
-    } catch (err: any) {
-      if (browser) await browser.close()
-      console.error('Puppeteer error:', err.message)
-      return NextResponse.json({ error: 'PDF generation failed: ' + err.message }, { status: 500 })
-    }
+    // Launch puppeteer with @sparticuz/chromium
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    })
+    
+    const page = await browser.newPage()
+    await page.setContent(html, { waitUntil: 'networkidle0' })
+    
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '2cm',
+        bottom: '2cm',
+        left: '1.5cm',
+        right: '1.5cm'
+      }
+    })
+    
+    await browser.close()
+    
+    // Return as PDF file
+    return new NextResponse(pdfBuffer, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="rates-challenge-${analysis.postcode || analysis.id}.pdf"`,
+        'Content-Length': String(pdfBuffer.length),
+        'Cache-Control': 'no-store',
+      },
+    })
 
   } catch (err: any) {
     console.error('PDF generation error:', err.message, err.stack)
