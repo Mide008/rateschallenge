@@ -1,0 +1,8 @@
+*.csv
+*.txt
+*.dat
+# Environments
+.env
+.env.local
+.env.production
+.env.development
