@@ -178,9 +178,9 @@ export function EvidenceBundle({ analysis, comparables, property }: Props) {
           const vs     = ((comp.rv_per_m2 - analysis.userRvPerM2) / analysis.userRvPerM2 * 100).toFixed(0)
           const vsSign = Number(vs) > 0 ? '+' : ''
           // Safely get values with fallbacks
-          const areaValue = comp.total_area ? comp.total_area : 0
-          const rvValue = comp.rateable_value ? comp.rateable_value : 0
-          const rvPerM2Value = comp.rv_per_m2 ? comp.rv_per_m2 : 0
+          const areaValue   = Number(comp.total_area)    || 0
+          const rvValue     = Number(comp.rateable_value) || 0
+          const rvPerM2Value = Number(comp.rv_per_m2)    || 0
           const addressText = comp.full_address || 'Address not available'
           const postcodeText = comp.postcode || 'N/A'
           
